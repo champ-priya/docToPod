@@ -1,0 +1,198 @@
+<div class="dashboard-container">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="16" fill="#7C3AED"/>
+          <path d="M12 16C12 13.7909 13.7909 12 16 12C18.2091 12 20 13.7909 20 16C20 18.2091 18.2091 20 16 20C13.7909 20 12 18.2091 12 16Z" fill="white"/>
+          <circle cx="20" cy="12" r="2" fill="white"/>
+        </svg>
+        <span>Monica Podcast</span>
+      </div>
+      <button class="sidebar-toggle">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 7l-5 5-5-5"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="search-box">
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="9" cy="9" r="7"/>
+        <path d="M14 14l4 4"/>
+      </svg>
+      <input type="text" placeholder="Search" />
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/dashboard" class="nav-item active">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+        </svg>
+        <span>Home</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-section">
+      <div class="section-header">Recent</div>
+      <div *ngFor="let podcast of podcasts.slice(0, 5)" class="recent-item" (click)="playPodcast(podcast)">
+        <div class="podcast-icon">
+          <svg width="16" height="16" viewBox="0 0 20 20" [attr.fill]="getStatusColor(podcast.status)">
+            <circle cx="10" cy="10" r="8"/>
+          </svg>
+        </div>
+        <div class="recent-info">
+          <div class="recent-title">{{ podcast.title }}</div>
+          <div class="recent-meta">
+            <span>{{ formatDuration(podcast.duration) }}</span>
+            <span>{{ formatDate(podcast.created_at!) }}</span>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="podcasts.length === 0 && !loading" class="empty-state">
+        No podcasts yet
+      </div>
+    </div>
+
+    <div class="generate-section">
+      <div class="generate-card">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="24" fill="#7C3AED" opacity="0.1"/>
+          <path d="M32 20v24M20 32h24" stroke="#7C3AED" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <h3>Generate AI Podcast</h3>
+        <button class="trial-button" routerLink="/">Start Free Trial</button>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="footer-item">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="10" cy="10" r="8"/>
+          <path d="M10 6v4l3 2"/>
+        </svg>
+        <span>English</span>
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 8l4 4 4-4"/>
+        </svg>
+      </button>
+      <div class="user-profile" (click)="logout()">
+        <div class="avatar">U</div>
+        <span class="user-name">User</span>
+        <span class="status-badge">{{ podcasts.length }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <header class="header">
+      <h1 class="page-title">My Podcasts</h1>
+      <div class="header-actions">
+        <button class="btn-new" routerLink="/">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 5v10M5 10h10"/>
+          </svg>
+          New Podcast
+        </button>
+        <button class="btn-logout" (click)="logout()">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h2M15 5l4 4-4 4m4-4H9"/>
+          </svg>
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+      <div *ngIf="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading your podcasts...</p>
+      </div>
+
+      <div *ngIf="error" class="error-state">
+        <p>{{ error }}</p>
+        <button class="btn-retry" (click)="loadPodcasts()">Retry</button>
+      </div>
+
+      <div *ngIf="!loading && !error && podcasts.length === 0" class="empty-podcasts">
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+          <circle cx="60" cy="60" r="50" fill="#f3f4f6"/>
+          <path d="M40 60h40M60 40v40" stroke="#9ca3af" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <h2>No podcasts yet</h2>
+        <p>Create your first AI-generated podcast to get started</p>
+        <button class="btn-create" routerLink="/">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 2L3 14h8l-1 4 10-12h-8l1-4z"/>
+          </svg>
+          Create Podcast
+        </button>
+      </div>
+
+      <div *ngIf="!loading && !error && podcasts.length > 0" class="podcasts-grid">
+        <div *ngFor="let podcast of podcasts" class="podcast-card" (click)="playPodcast(podcast)">
+          <div class="podcast-header">
+            <div class="podcast-type" [ngClass]="'type-' + podcast.source_type">
+              <svg *ngIf="podcast.source_type === 'website'" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="16" height="14" rx="2"/>
+                <path d="M2 7h16"/>
+              </svg>
+              <svg *ngIf="podcast.source_type === 'youtube'" width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM8 13V7l5 3-5 3z"/>
+              </svg>
+              <svg *ngIf="podcast.source_type === 'pdf'" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 2h8l4 4v10a2 2 0 01-2 2H4a2 2 0 01-2-2V4a2 2 0 012-2h2z"/>
+                <path d="M14 2v4h4"/>
+              </svg>
+              <svg *ngIf="podcast.source_type === 'text'" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 6h12M4 10h12M4 14h8"/>
+              </svg>
+              <span>{{ podcast.source_type }}</span>
+            </div>
+            <div class="podcast-actions">
+              <button class="btn-action" (click)="deletePodcast(podcast.id!, $event)">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 4h8M8 4V3a1 1 0 011-1h2a1 1 0 011 1v1M4 6h12M5 6v10a2 2 0 002 2h6a2 2 0 002-2V6"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <h3 class="podcast-title">{{ podcast.title }}</h3>
+          <p class="podcast-description">{{ podcast.description || 'No description' }}</p>
+
+          <div class="podcast-footer">
+            <div class="podcast-meta">
+              <span class="meta-item">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="10" cy="10" r="8"/>
+                  <path d="M10 6v4l3 2"/>
+                </svg>
+                {{ formatDuration(podcast.duration) }}
+              </span>
+              <span class="meta-item">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="14" height="14" rx="2"/>
+                  <path d="M16 2v4M4 2v4M3 8h14"/>
+                </svg>
+                {{ formatDate(podcast.created_at!) }}
+              </span>
+            </div>
+            <div class="podcast-status" [style.background]="getStatusColor(podcast.status)">
+              {{ getStatusText(podcast.status) }}
+            </div>
+          </div>
+
+          <div class="podcast-hosts">
+            <span class="hosts-label">Hosts:</span>
+            <div class="hosts-avatars">
+              <div *ngFor="let host of podcast.host_voices" class="host-badge">
+                {{ host }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
